@@ -5,7 +5,7 @@ services:
     image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
     container_name: namenode
     volumes:
-      - /tmp/hadoop/dfs/name:/hadoop/dfs/name
+      - ~/bigdatavault/hadoop/dfs/name:/hadoop/dfs/name
     environment:
       - CLUSTER_NAME=test
     env_file:
@@ -20,7 +20,7 @@ services:
     image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
     container_name: datanode
     volumes:
-      - /tmp/hadoop/dfs/data:/hadoop/dfs/data
+      - ~/bigdatavault/hadoop/dfs/data:/hadoop/dfs/data
       - ./bank:/bank
     env_file:
       - ./hadoop-hive.env
@@ -111,9 +111,11 @@ services:
         ipv4_address: 172.27.1.11
 
   zeppelin:
-    image: openkbs/docker-spark-bde2020-zeppelin
+    image: lucas/zeppelin
     container_name: zeppelin
     environment:
+      ZEPPELIN_NOTEBOOK_DIR: "/notebook"
+      ZEPPELIN_LOG_DIR: "/logs"
       CORE_CONF_fs_defaultFS: "hdfs://namenode:8020"
       SPARK_MASTER: "spark://spark-master:7077"
       MASTER: "spark://spark-master:7077"
@@ -127,9 +129,9 @@ services:
     env_file:
       - ./hadoop-hive.env
     volumes:
-      - /tmp/simple-demo/zeppelin/data:/usr/lib/zeppelin/data:rw
-      - /tmp/simple-demo/zeppelin/notebook:/usr/lib/zeppelin/notebook:rw
-    command: /usr/lib/zeppelin/bin/zeppelin.sh
+      - ~/bigdatavault/zeppelin/logs:/logs:rw
+      - ~/bigdatavault/zeppelin/data:/data:rw
+      - ~/bigdatavault/zeppelin/notebook:/notebook:rw
     networks:
       net_pet:
         ipv4_address: 172.27.1.12
@@ -141,7 +143,7 @@ services:
           - "33061:3306"
       command: --init-file /data/application/init.sql
       volumes:
-          - /tmp/mysql/data:/var/lib/mysql
+          - ~/bigdatavault/mysql/data:/var/lib/mysql
           - ./init.sql:/data/application/init.sql
       environment:
           MYSQL_ROOT_USER: root
